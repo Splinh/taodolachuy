@@ -1,29 +1,37 @@
 <?php
 /**
- * Inline critical CSS — loaded directly when Vite build is not available.
+ * Theme core CSS — enqueued as external files for browser caching.
  *
- * This provides basic styling so the demo is viewable before the full
- * Vite pipeline is operational.
+ * Previously inlined (~150KB per page load), now served as cacheable
+ * stylesheet files. Browser caches them after first visit.
  *
  * @package SPL
  */
 
 defined( 'ABSPATH' ) || exit;
 
-add_action( 'wp_head', 'spl_inline_critical_css', 5 );
+add_action( 'wp_enqueue_scripts', 'spl_enqueue_core_css', 1 );
 
 /**
- * Output inline CSS if Vite assets are not built yet.
+ * Enqueue critical + pages CSS as external files (cacheable).
  */
-function spl_inline_critical_css(): void {
-	echo '<style id="spl-critical-css">';
-	readfile( __DIR__ . '/critical.css' );
-	echo '</style>';
+function spl_enqueue_core_css(): void {
+	$ver = THEME_VERSION ?? filemtime( __DIR__ . '/critical.css' );
+
+	wp_enqueue_style(
+		'spl-critical',
+		get_template_directory_uri() . '/inc/critical.css',
+		[],
+		$ver
+	);
 
 	// Sub-page styles (about, contact, news, single).
 	if ( ! is_front_page() ) {
-		echo '<style id="spl-pages-css">';
-		readfile( __DIR__ . '/pages.css' );
-		echo '</style>';
+		wp_enqueue_style(
+			'spl-pages',
+			get_template_directory_uri() . '/inc/pages.css',
+			[ 'spl-critical' ],
+			$ver
+		);
 	}
 }
