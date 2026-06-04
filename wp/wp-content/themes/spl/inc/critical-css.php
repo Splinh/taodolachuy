@@ -11,18 +11,56 @@
 defined( 'ABSPATH' ) || exit;
 
 add_action( 'wp_enqueue_scripts', 'spl_enqueue_core_css', 1 );
+add_filter( 'wp_resource_hints', 'spl_google_font_resource_hints', 10, 2 );
+
+if ( ! function_exists( 'spl_theme_asset_version' ) ) {
+	/**
+	 * Return a cache-busting version for theme assets.
+	 */
+	function spl_theme_asset_version( string $relative_path ): string {
+		$path = get_template_directory() . '/' . ltrim( $relative_path, '/' );
+
+		return is_file( $path ) ? (string) filemtime( $path ) : (string) THEME_VERSION;
+	}
+}
+
+/**
+ * Add preconnect hints for Google Fonts.
+ *
+ * @param array<int, string|array<string, string>> $urls          Resource URLs.
+ * @param string                                   $relation_type Resource hint type.
+ * @return array<int, string|array<string, string>>
+ */
+function spl_google_font_resource_hints( array $urls, string $relation_type ): array {
+	if ( 'preconnect' !== $relation_type ) {
+		return $urls;
+	}
+
+	$urls[] = 'https://fonts.googleapis.com';
+	$urls[] = [
+		'href'        => 'https://fonts.gstatic.com',
+		'crossorigin' => 'anonymous',
+	];
+
+	return $urls;
+}
 
 /**
  * Enqueue critical + pages CSS as external files (cacheable).
  */
 function spl_enqueue_core_css(): void {
-	$ver = THEME_VERSION ?? filemtime( __DIR__ . '/critical.css' );
+	wp_enqueue_style(
+		'spl-fonts',
+		'https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap',
+		[],
+		null
+	);
 
 	wp_enqueue_style(
 		'spl-critical',
 		get_template_directory_uri() . '/inc/critical.css',
-		[],
-		$ver
+		[ 'spl-fonts' ],
+		spl_theme_asset_version( 'inc/critical.css' )
 	);
 
 	// Sub-page styles (about, contact, news, single).
@@ -31,7 +69,7 @@ function spl_enqueue_core_css(): void {
 			'spl-pages',
 			get_template_directory_uri() . '/inc/pages.css',
 			[ 'spl-critical' ],
-			$ver
+			spl_theme_asset_version( 'inc/pages.css' )
 		);
 	}
 }

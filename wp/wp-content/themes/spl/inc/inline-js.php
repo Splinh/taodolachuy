@@ -16,14 +16,11 @@ add_action( 'wp_enqueue_scripts', 'spl_enqueue_core_ui_js', 99 );
  * Enqueue core UI interactions (mobile menu, reveal, tabs, etc.) as external file.
  */
 function spl_enqueue_core_ui_js(): void {
-	$file = __DIR__ . '/core-ui.js';
-	$ver  = THEME_VERSION ?? filemtime( $file );
-
 	wp_enqueue_script(
 		'spl-core-ui',
 		get_template_directory_uri() . '/inc/core-ui.js',
 		[],
-		$ver,
+		function_exists( 'spl_theme_asset_version' ) ? spl_theme_asset_version( 'inc/core-ui.js' ) : (string) THEME_VERSION,
 		[ 'strategy' => 'defer', 'in_footer' => true ]
 	);
 }

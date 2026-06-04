@@ -49,15 +49,20 @@ $price_old_html = '';
 if ( $card_product->is_type( 'variable' ) ) {
 	// Variation prices are cached in a WC transient — no extra DB queries.
 	$prices = $card_product->get_variation_prices( true );
-	$min_id = current( array_keys( $prices['price'] ) );
-	$min_price   = (float) current( $prices['price'] );
-	$min_regular = (float) ( $prices['regular_price'][ $min_id ] ?? $min_price );
 
-	$price_current_html = wc_price( $min_price );
+	if ( empty( $prices['price'] ) ) {
+		$price_current_html = $card_product->get_price_html();
+	} else {
+		$min_id      = current( array_keys( $prices['price'] ) );
+		$min_price   = (float) current( $prices['price'] );
+		$min_regular = (float) ( $prices['regular_price'][ $min_id ] ?? $min_price );
 
-	if ( $min_regular > $min_price ) {
-		$price_old_html = wc_price( $min_regular );
-		$badge = '-' . round( ( ( $min_regular - $min_price ) / $min_regular ) * 100 ) . '%';
+		$price_current_html = wc_price( $min_price );
+
+		if ( $min_regular > $min_price ) {
+			$price_old_html = wc_price( $min_regular );
+			$badge = '-' . round( ( ( $min_regular - $min_price ) / $min_regular ) * 100 ) . '%';
+		}
 	}
 } elseif ( $card_product->is_on_sale() ) {
 	$reg  = (float) $card_product->get_regular_price();
