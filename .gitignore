@@ -116,3 +116,5 @@ tools/
 hd-thamkhao/
 spl-thamkhao/
 New folder/
+website/.tools/
+*.exe

@@ -10,8 +10,8 @@
 		"build:hdat": "pnpm --filter hdat build",
 		"watch:hdac": "pnpm --filter hd-ai-classic watch",
 		"build:hdac": "pnpm --filter hd-ai-classic build",
-		"watch:theme": "pnpm --filter hd watch",
-		"build:theme": "pnpm --filter hd build",
+		"watch:theme": "pnpm --filter spl watch",
+		"build:theme": "pnpm --filter spl build",
 		"watch": "pnpm -r --parallel watch",
 		"build": "pnpm -r build"
 	},
