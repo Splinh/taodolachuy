@@ -310,7 +310,7 @@ ul, ol { list-style: none; }
   flex: 1;
   background: none;
   border: none;
-  padding: 10px var(--sp-5);
+  padding: 8px var(--sp-5);
   color: var(--color-text-primary);
   font-size: var(--fs-base);
   font-family: var(--font-primary);
@@ -320,10 +320,12 @@ ul, ol { list-style: none; }
 .search-bar__btn {
   background: var(--color-primary);
   color: white;
-  padding: 10px var(--sp-5);
+  padding: 8px var(--sp-4);
+  margin: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: var(--r-full);
   transition: background var(--dur-fast);
 }
 .search-bar__btn:hover { background: var(--color-primary-dark); }
@@ -1690,9 +1692,15 @@ ul, ol { list-style: none; }
   border: none;
   background: none;
   box-shadow: none;
+  padding: 6px var(--sp-4);
+  font-size: var(--fs-sm);
 }
 .mobile-nav .search-bar--mobile .search-bar__input:focus {
   box-shadow: none;
+}
+.mobile-nav .search-bar--mobile .search-bar__btn {
+  padding: 6px var(--sp-3);
+  margin: 2px;
 }
 .mobile-nav .search-bar--mobile .search-results {
   position: relative;
