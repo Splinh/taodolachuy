@@ -20,6 +20,7 @@ $posts_query = new \WP_Query( [
 	'orderby'             => 'date',
 	'order'               => 'DESC',
 	'ignore_sticky_posts' => true,
+	'no_found_rows'       => true,
 ] );
 
 ?>

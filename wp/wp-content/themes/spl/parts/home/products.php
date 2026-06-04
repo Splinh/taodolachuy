@@ -54,6 +54,7 @@ $grid_id    = 'featured-products-' . $spl_products_instance;
 					'orderby'             => 'date',
 					'order'               => 'DESC',
 					'ignore_sticky_posts' => true,
+					'no_found_rows'       => true,
 				];
 
 				// Selected category → that category. Empty → newest products overall.

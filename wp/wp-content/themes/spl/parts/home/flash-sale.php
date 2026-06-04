@@ -37,7 +37,9 @@ if ( Helper::isWoocommerceActive() ) {
 			'post_type'      => 'product',
 			'posts_per_page' => $count,
 			'post__in'       => $sale_ids,
-			'orderby'        => 'rand',
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+			'no_found_rows'  => true,
 		] );
 		$sale_products = $sale_query->posts;
 	}

@@ -35,20 +35,6 @@ $pid       = $card_product->get_id();
 $permalink = get_permalink( $pid );
 $name      = $card_product->get_name();
 $image_url = wp_get_attachment_image_url( $card_product->get_image_id(), 'woocommerce_thumbnail' ) ?: wc_placeholder_img_src();
-$selected_variation = [];
-
-if ( $card_product->is_type( 'variable' ) ) {
-	/** @var \WC_Product_Variable $card_product */
-	$available_variations = $card_product->get_available_variations();
-	$selected_variation   = $available_variations[0] ?? [];
-
-	if ( ! empty( $selected_variation['image']['thumb_src'] ) ) {
-		$image_url = $selected_variation['image']['thumb_src'];
-	} elseif ( ! empty( $selected_variation['image']['src'] ) ) {
-		$image_url = $selected_variation['image']['src'];
-	}
-}
-
 // First product category name.
 $cat_name = '';
 $terms    = get_the_terms( $pid, 'product_cat' );
@@ -58,13 +44,7 @@ if ( $terms && ! is_wp_error( $terms ) ) {
 
 // Sale badge (percentage when computable).
 $badge = '';
-if ( $card_product->is_type( 'variable' ) && $selected_variation ) {
-	$reg  = (float) ( $selected_variation['display_regular_price'] ?? 0 );
-	$sale = (float) ( $selected_variation['display_price'] ?? 0 );
-	$badge = ( $reg > 0 && $sale > 0 && $reg > $sale )
-		? '-' . round( ( ( $reg - $sale ) / $reg ) * 100 ) . '%'
-		: '';
-} elseif ( $card_product->is_on_sale() ) {
+if ( $card_product->is_on_sale() ) {
 	$reg  = (float) $card_product->get_regular_price();
 	$sale = (float) $card_product->get_sale_price();
 	$badge = ( $reg > 0 && $sale > 0 )
@@ -72,24 +52,9 @@ if ( $card_product->is_type( 'variable' ) && $selected_variation ) {
 		: __( 'Giảm giá', 'spl' );
 }
 
-// Prices: current + optional old (when on sale).
-$price_old_html = '';
-if ( $card_product->is_type( 'variable' ) && $selected_variation ) {
-	$display_price   = (float) ( $selected_variation['display_price'] ?? 0 );
-	$display_regular = (float) ( $selected_variation['display_regular_price'] ?? 0 );
-
-	if ( $display_price > 0 ) {
-		$price_current_html = wc_price( $display_price );
-		$price_old_html     = ( $display_regular > $display_price ) ? wc_price( $display_regular ) : '';
-	} else {
-		$price_current_html = $card_product->get_price_html();
-	}
-} elseif ( $card_product->is_on_sale() && $card_product->get_regular_price() ) {
-	$price_current_html = wc_price( wc_get_price_to_display( $card_product ) );
-	$price_old_html     = wc_price( wc_get_price_to_display( $card_product, [ 'price' => $card_product->get_regular_price() ] ) );
-} else {
-	$price_current_html = $card_product->get_price_html();
-}
+// Prices — use WC built-in price_html (cached, no extra queries).
+$price_old_html     = '';
+$price_current_html = $card_product->get_price_html();
 
 $purchasable = $card_product->is_purchasable() && $card_product->is_in_stock() && ! $card_product->is_type( 'variable' );
 ?>
