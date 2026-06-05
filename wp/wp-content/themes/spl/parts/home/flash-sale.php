@@ -64,14 +64,25 @@ if ( Helper::isWoocommerceActive() ) {
 		<div class="products-grid products-grid--cols" style="--cols:<?php echo esc_attr( $cols ); ?>;">
 			<?php
 			if ( ! empty( $sale_products ) ) :
-				foreach ( $sale_products as $post ) :
-					$product = wc_get_product( $post->ID );
-					if ( ! $product ) {
-						continue;
-					}
-					get_template_part( 'parts/product-card', null, [ 'product' => $product ] );
-				endforeach;
-				wp_reset_postdata();
+				$cache_key = 'spl_flash_sale_' . md5( implode( ',', wp_list_pluck( $sale_products, 'ID' ) ) );
+				$cached    = get_transient( $cache_key );
+
+				if ( false !== $cached ) :
+					echo $cached; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				else :
+					ob_start();
+					foreach ( $sale_products as $post ) :
+						$product = wc_get_product( $post->ID );
+						if ( ! $product ) {
+							continue;
+						}
+						get_template_part( 'parts/product-card', null, [ 'product' => $product ] );
+					endforeach;
+					wp_reset_postdata();
+					$html = ob_get_clean();
+					set_transient( $cache_key, $html, HOUR_IN_SECONDS );
+					echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				endif;
 			else :
 				?>
 				<div class="flash-sale__empty"><?php esc_html_e( 'Sản phẩm flash sale sẽ được cập nhật sớm!', 'spl' ); ?></div>

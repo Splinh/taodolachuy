@@ -48,43 +48,57 @@ $grid_id    = 'featured-products-' . $spl_products_instance;
 		<div class="products-grid products-grid--cols" id="<?php echo esc_attr( $grid_id ); ?>" style="--cols:<?php echo esc_attr( $cols ); ?>;">
 			<?php
 			if ( Helper::isWoocommerceActive() ) :
-				$query_args = [
-					'post_type'           => 'product',
-					'posts_per_page'      => $query_count,
-					'orderby'             => 'date',
-					'order'               => 'DESC',
-					'ignore_sticky_posts' => true,
-					'no_found_rows'       => true,
-				];
+				// Transient cache key — unique per category + count + columns.
+				$cache_key = 'spl_products_' . md5( $cat_id . '_' . $query_count . '_' . $count );
+				$cached    = get_transient( $cache_key );
 
-				// Selected category → that category. Empty → newest products overall.
-				if ( $cat_id ) {
-					$query_args['tax_query'] = [
-						[
-							'taxonomy' => 'product_cat',
-							'field'    => 'term_id',
-							'terms'    => $cat_id,
-						],
+				if ( false !== $cached ) :
+					echo $cached; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped HTML.
+				else :
+					ob_start();
+
+					$query_args = [
+						'post_type'           => 'product',
+						'posts_per_page'      => $query_count,
+						'orderby'             => 'date',
+						'order'               => 'DESC',
+						'ignore_sticky_posts' => true,
+						'no_found_rows'       => true,
 					];
-				}
 
-				$products_query = new \WP_Query( $query_args );
-
-				if ( $products_query->have_posts() ) :
-					$item_index = 0;
-					while ( $products_query->have_posts() ) :
-						$products_query->the_post();
-						++$item_index;
-						get_template_part(
-							'parts/product-card',
-							null,
+					// Selected category → that category. Empty → newest products overall.
+					if ( $cat_id ) {
+						$query_args['tax_query'] = [
 							[
-								'id'    => get_the_ID(),
-								'class' => $item_index > $count ? 'product-card--mobile-extra' : '',
-							]
-						);
-					endwhile;
-					wp_reset_postdata();
+								'taxonomy' => 'product_cat',
+								'field'    => 'term_id',
+								'terms'    => $cat_id,
+							],
+						];
+					}
+
+					$products_query = new \WP_Query( $query_args );
+
+					if ( $products_query->have_posts() ) :
+						$item_index = 0;
+						while ( $products_query->have_posts() ) :
+							$products_query->the_post();
+							++$item_index;
+							get_template_part(
+								'parts/product-card',
+								null,
+								[
+									'id'    => get_the_ID(),
+									'class' => $item_index > $count ? 'product-card--mobile-extra' : '',
+								]
+							);
+						endwhile;
+						wp_reset_postdata();
+					endif;
+
+					$html = ob_get_clean();
+					set_transient( $cache_key, $html, 2 * HOUR_IN_SECONDS );
+					echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				endif;
 			else :
 				// Static fallback.
