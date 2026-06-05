@@ -26,8 +26,10 @@ $cols = max( 3, min( 5, $cols ?: 4 ) );
 
 // Unique IDs per instance (section can repeat). First instance keeps #products
 // so the hero "Mua Ngay" anchor still works.
-static $spl_products_instance = 0;
-++$spl_products_instance;
+$GLOBALS['spl_products_instance'] = isset( $GLOBALS['spl_products_instance'] )
+	? (int) $GLOBALS['spl_products_instance'] + 1
+	: 1;
+$spl_products_instance = (int) $GLOBALS['spl_products_instance'];
 $section_id = $spl_products_instance === 1 ? 'products' : 'products-' . $spl_products_instance;
 $grid_id    = 'featured-products-' . $spl_products_instance;
 
@@ -48,15 +50,18 @@ $grid_id    = 'featured-products-' . $spl_products_instance;
 		<div class="products-grid products-grid--cols" id="<?php echo esc_attr( $grid_id ); ?>" style="--cols:<?php echo esc_attr( $cols ); ?>;">
 			<?php
 			if ( Helper::isWoocommerceActive() ) :
-				// Transient cache key — unique per category + count + columns.
-				$cache_key = 'spl_products_' . md5( $cat_id . '_' . $query_count . '_' . $count );
-				$cached    = get_transient( $cache_key );
+				$cache_key   = spl_product_ids_cache_key(
+					'spl_products',
+					[
+						'category'    => $cat_id,
+						'query_count' => $query_count,
+						'count'       => $count,
+						'order'       => 'date_desc',
+					]
+				);
+				$product_ids = spl_get_cached_product_ids( $cache_key );
 
-				if ( false !== $cached ) :
-					echo $cached; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped HTML.
-				else :
-					ob_start();
-
+				if ( false === $product_ids ) :
 					$query_args = [
 						'post_type'           => 'product',
 						'posts_per_page'      => $query_count,
@@ -64,6 +69,7 @@ $grid_id    = 'featured-products-' . $spl_products_instance;
 						'order'               => 'DESC',
 						'ignore_sticky_posts' => true,
 						'no_found_rows'       => true,
+						'fields'              => 'ids',
 					];
 
 					// Selected category → that category. Empty → newest products overall.
@@ -78,27 +84,22 @@ $grid_id    = 'featured-products-' . $spl_products_instance;
 					}
 
 					$products_query = new \WP_Query( $query_args );
+					$product_ids    = array_values( array_filter( array_map( 'absint', $products_query->posts ) ) );
+					spl_set_cached_product_ids( $cache_key, $product_ids, 2 * HOUR_IN_SECONDS );
+				endif;
 
-					if ( $products_query->have_posts() ) :
-						$item_index = 0;
-						while ( $products_query->have_posts() ) :
-							$products_query->the_post();
-							++$item_index;
-							get_template_part(
-								'parts/product-card',
-								null,
-								[
-									'id'    => get_the_ID(),
-									'class' => $item_index > $count ? 'product-card--mobile-extra' : '',
-								]
-							);
-						endwhile;
-						wp_reset_postdata();
-					endif;
-
-					$html = ob_get_clean();
-					set_transient( $cache_key, $html, 2 * HOUR_IN_SECONDS );
-					echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				if ( ! empty( $product_ids ) ) :
+					spl_prime_product_card_caches( $product_ids );
+					foreach ( $product_ids as $item_index => $product_id ) :
+						get_template_part(
+							'parts/product-card',
+							null,
+							[
+								'id'    => $product_id,
+								'class' => ( $item_index + 1 ) > $count ? 'product-card--mobile-extra' : '',
+							]
+						);
+					endforeach;
 				endif;
 			else :
 				// Static fallback.

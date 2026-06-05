@@ -29,19 +29,36 @@ $cols = isset( $data['columns'] ) ? absint( $data['columns'] ) : 4;
 $cols = max( 3, min( 5, $cols ?: 4 ) );
 
 // Get on-sale WooCommerce products.
-$sale_products = [];
+$sale_product_ids = [];
 if ( Helper::isWoocommerceActive() ) {
 	$sale_ids = wc_get_product_ids_on_sale();
 	if ( ! empty( $sale_ids ) ) {
-		$sale_query = new \WP_Query( [
-			'post_type'      => 'product',
-			'posts_per_page' => $count,
-			'post__in'       => $sale_ids,
-			'orderby'        => 'date',
-			'order'          => 'DESC',
-			'no_found_rows'  => true,
-		] );
-		$sale_products = $sale_query->posts;
+		$sale_ids  = array_values( array_unique( array_filter( array_map( 'absint', $sale_ids ) ) ) );
+		$cache_key = spl_product_ids_cache_key(
+			'spl_flash_sale',
+			[
+				'sale_ids' => $sale_ids,
+				'count'    => $count,
+				'order'    => 'date_desc',
+			]
+		);
+
+		$sale_product_ids = spl_get_cached_product_ids( $cache_key );
+
+		if ( false === $sale_product_ids ) {
+			$sale_query = new \WP_Query( [
+				'post_type'           => 'product',
+				'posts_per_page'      => $count,
+				'post__in'            => $sale_ids,
+				'orderby'             => 'date',
+				'order'               => 'DESC',
+				'ignore_sticky_posts' => true,
+				'no_found_rows'       => true,
+				'fields'              => 'ids',
+			] );
+			$sale_product_ids = array_values( array_filter( array_map( 'absint', $sale_query->posts ) ) );
+			spl_set_cached_product_ids( $cache_key, $sale_product_ids, HOUR_IN_SECONDS );
+		}
 	}
 }
 
@@ -63,26 +80,11 @@ if ( Helper::isWoocommerceActive() ) {
 		</div>
 		<div class="products-grid products-grid--cols" style="--cols:<?php echo esc_attr( $cols ); ?>;">
 			<?php
-			if ( ! empty( $sale_products ) ) :
-				$cache_key = 'spl_flash_sale_' . md5( implode( ',', wp_list_pluck( $sale_products, 'ID' ) ) );
-				$cached    = get_transient( $cache_key );
-
-				if ( false !== $cached ) :
-					echo $cached; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				else :
-					ob_start();
-					foreach ( $sale_products as $post ) :
-						$product = wc_get_product( $post->ID );
-						if ( ! $product ) {
-							continue;
-						}
-						get_template_part( 'parts/product-card', null, [ 'product' => $product ] );
-					endforeach;
-					wp_reset_postdata();
-					$html = ob_get_clean();
-					set_transient( $cache_key, $html, HOUR_IN_SECONDS );
-					echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				endif;
+			if ( ! empty( $sale_product_ids ) ) :
+				spl_prime_product_card_caches( $sale_product_ids );
+				foreach ( $sale_product_ids as $product_id ) :
+					get_template_part( 'parts/product-card', null, [ 'id' => $product_id ] );
+				endforeach;
 			else :
 				?>
 				<div class="flash-sale__empty"><?php esc_html_e( 'Sản phẩm flash sale sẽ được cập nhật sớm!', 'spl' ); ?></div>
