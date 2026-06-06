@@ -105,6 +105,7 @@ Config::define( 'WP_DEBUG_DISPLAY', false );
 Config::define( 'WP_DEBUG_LOG', false );
 
 /** Performance */
+Config::define( 'WP_CACHE', true );
 Config::define( 'WP_MEMORY_LIMIT', env( 'WP_MEMORY_LIMIT' ) ?? '512M' );
 Config::define( 'WP_MAX_MEMORY_LIMIT', env( 'WP_MAX_MEMORY_LIMIT' ) ?? '512M' );
 Config::define( 'CONCATENATE_SCRIPTS', false );
