@@ -131,15 +131,118 @@ nginx -T | grep "gzip on"
 
 ## 3. Database & Caching
 
-### 3-Layer Cache Strategy
+### 4-Layer Cache Strategy
 
 ```
-Layer 1: advanced-cache.php     → Full page HTML (90ms TTFB)
+Layer 0: Nginx FastCGI Cache    → Server-level, không chạy PHP (~10ms TTFB)
+         ↓ miss
+Layer 1: advanced-cache.php     → PHP drop-in, serve file HTML (~90ms TTFB)
          ↓ miss
 Layer 2: Redis Object Cache     → WP options, transients, WC sessions
          ↓ miss
 Layer 3: MySQL + InnoDB Buffer  → Raw queries (buffer_pool giữ data trong RAM)
 ```
+
+> **Layer 0 vs Layer 1**: FastCGI cache nhanh hơn vì Nginx serve trực tiếp
+> từ RAM/disk mà **không cần khởi tạo PHP process**. advanced-cache.php là
+> fallback khi FastCGI cache không được config hoặc bị bypass.
+
+### Nginx FastCGI Cache Setup (aaPanel)
+
+> **Tương đương LSCache** nhưng cho Nginx. Cache response ở server-level,
+> bypass PHP hoàn toàn trên cache HIT. TTFB có thể xuống **<10ms**.
+
+**Bước 1**: Thêm cache zone vào Nginx main config (`/etc/nginx/nginx.conf`):
+
+```nginx
+# Thêm NGOÀI block server {}, trong block http {}
+fastcgi_cache_path /var/cache/nginx/fastcgi levels=1:2
+    keys_zone=WPCACHE:256m
+    max_size=1g
+    inactive=12h
+    use_temp_path=off;
+
+fastcgi_cache_key "$scheme$request_method$host$request_uri";
+```
+
+**Bước 2**: Thêm cache rules vào site config (aaPanel → Website → domain → Config):
+
+```nginx
+# Bên trong server {} block, TRƯỚC location ~ \.php$
+
+# --- FastCGI Cache Rules ---
+set $skip_cache 0;
+
+# Không cache POST, query string, logged-in, WooCommerce
+if ($request_method = POST)          { set $skip_cache 1; }
+if ($query_string != "")             { set $skip_cache 1; }
+if ($http_cookie ~* "wordpress_logged_in|woocommerce_items_in_cart|wp_woocommerce_session") {
+    set $skip_cache 1;
+}
+
+# Không cache WC dynamic pages
+if ($request_uri ~* "/cart/|/checkout/|/my-account/|/wp-admin/|/wp-json/") {
+    set $skip_cache 1;
+}
+
+# Áp dụng trong location ~ \.php$ block:
+# fastcgi_cache WPCACHE;
+# fastcgi_cache_valid 200 12h;
+# fastcgi_cache_bypass $skip_cache;
+# fastcgi_no_cache $skip_cache;
+# fastcgi_cache_use_stale error timeout updating;
+# add_header X-FastCGI-Cache $upstream_cache_status;
+```
+
+**Bước 3**: Sửa `location ~ \.php$` block trong site config:
+
+```nginx
+location ~ \.php$ {
+    # ... existing fastcgi_pass, fastcgi_param, etc. ...
+
+    # Thêm vào cuối:
+    fastcgi_cache WPCACHE;
+    fastcgi_cache_valid 200 12h;
+    fastcgi_cache_bypass $skip_cache;
+    fastcgi_no_cache $skip_cache;
+    fastcgi_cache_use_stale error timeout updating;
+    add_header X-FastCGI-Cache $upstream_cache_status;
+}
+```
+
+**Bước 4**: Test + reload:
+
+```bash
+nginx -t && systemctl reload nginx
+
+# Verify cache hoạt động
+curl -sI https://example.com | grep X-FastCGI-Cache
+# HIT = cache đang serve (không qua PHP)
+# MISS = lần đầu (build cache)
+# BYPASS = logged-in / WC page
+```
+
+**Purge cache**:
+
+```bash
+# Xóa toàn bộ FastCGI cache
+rm -rf /var/cache/nginx/fastcgi/*
+
+# Hoặc tự động purge khi product save (thêm vào theme):
+# exec( 'rm -rf /var/cache/nginx/fastcgi/*' ); // Cần sudoers config
+```
+
+### So sánh các giải pháp Page Cache trên Nginx
+
+| Giải pháp | TTFB | PHP process | Config | Purge tự động |
+|---|---|---|---|---|
+| **FastCGI Cache** | **~10ms** | ❌ Không cần | Nginx config | Cần script |
+| **advanced-cache.php** | ~90ms | ✅ Minimal | Theme code | ✅ Hook WP |
+| **WP Super Cache** | ~100ms | ✅ PHP | Plugin | ✅ Plugin |
+
+> **Khuyến nghị**: Dùng **cả 2 layer** — FastCGI cache ở Layer 0 (nhanh nhất),
+> advanced-cache.php ở Layer 1 (fallback + tự purge khi save post).
+> FastCGI miss → advanced-cache HIT → vẫn nhanh 90ms thay vì uncached 2-3s.
 
 ### Redis Object Cache Setup
 
