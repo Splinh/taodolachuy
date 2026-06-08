@@ -258,6 +258,15 @@ ul, ol { list-style: none; }
   letter-spacing: 1px;
   text-transform: uppercase;
 }
+/* WordPress custom-logo image sizing */
+.logo img, .logo .custom-logo, .site-logo img, .custom-logo-link img {
+  height: 72px;
+  width: auto;
+  max-width: 280px;
+  object-fit: contain;
+  padding: 4px 0;
+  display: block;
+}
 
 /* Search */
 .search-bar { flex: 1; max-width: 480px; position: relative; }
