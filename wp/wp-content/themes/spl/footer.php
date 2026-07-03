@@ -147,7 +147,7 @@ get_template_part( 'parts/global/company-activity' );
 							'class'   => 'footer__brand-img',
 							'loading' => 'lazy',
 							'alt'     => esc_attr( get_bloginfo( 'name' ) ),
-							'style'   => 'max-height: 110px; width: auto; display: block; opacity: 1; filter: brightness(1.8) contrast(1.1);',
+							'style'   => 'height: 80px !important; max-height: none !important; width: auto !important; display: block; opacity: 1; filter: brightness(1.8) contrast(1.1);',
 						] );
 					else :
 					?>
