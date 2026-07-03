@@ -318,6 +318,121 @@
                             "append": ""
                         },
                         {
+                            "key": "field_lachuy_cf_social_links",
+                            "label": "Các liên kết mạng xã hội",
+                            "name": "social_links",
+                            "aria-label": "",
+                            "type": "repeater",
+                            "instructions": "Cấu hình danh sách mạng xã hội cho sidebar liên hệ. Để trống sẽ tự động hiển thị theo cấu hình mặc định (SPL Settings).",
+                            "required": 0,
+                            "conditional_logic": false,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "layout": "table",
+                            "pagination": 0,
+                            "min": 0,
+                            "max": 10,
+                            "collapsed": "",
+                            "button_label": "Thêm liên kết",
+                            "rows_per_page": 20,
+                            "sub_fields": [
+                                {
+                                    "key": "field_lachuy_cf_social_links_icon",
+                                    "label": "Icon / Kênh",
+                                    "name": "icon_type",
+                                    "aria-label": "",
+                                    "type": "select",
+                                    "instructions": "",
+                                    "required": 1,
+                                    "conditional_logic": false,
+                                    "wrapper": {
+                                        "width": "20",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "choices": {
+                                        "facebook": "Facebook",
+                                        "youtube": "Youtube",
+                                        "zalo": "Zalo",
+                                        "tiktok": "TikTok",
+                                        "instagram": "Instagram",
+                                        "messenger": "Messenger"
+                                    },
+                                    "default_value": "facebook",
+                                    "return_format": "value",
+                                    "multiple": 0,
+                                    "allow_null": 0,
+                                    "ui": 0,
+                                    "ajax": 0,
+                                    "placeholder": "",
+                                    "parent_repeater": "field_lachuy_cf_social_links"
+                                },
+                                {
+                                    "key": "field_lachuy_cf_social_links_title",
+                                    "label": "Tiêu đề hiển thị",
+                                    "name": "title",
+                                    "aria-label": "",
+                                    "type": "text",
+                                    "instructions": "",
+                                    "required": 1,
+                                    "conditional_logic": false,
+                                    "wrapper": {
+                                        "width": "25",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "default_value": "",
+                                    "maxlength": "",
+                                    "placeholder": "VD: Facebook",
+                                    "prepend": "",
+                                    "append": "",
+                                    "parent_repeater": "field_lachuy_cf_social_links"
+                                },
+                                {
+                                    "key": "field_lachuy_cf_social_links_subtext",
+                                    "label": "Nhãn phụ",
+                                    "name": "subtext",
+                                    "aria-label": "",
+                                    "type": "text",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": false,
+                                    "wrapper": {
+                                        "width": "25",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "default_value": "",
+                                    "maxlength": "",
+                                    "placeholder": "VD: Theo dõi trang",
+                                    "prepend": "",
+                                    "append": "",
+                                    "parent_repeater": "field_lachuy_cf_social_links"
+                                },
+                                {
+                                    "key": "field_lachuy_cf_social_links_url",
+                                    "label": "Liên kết (URL)",
+                                    "name": "url",
+                                    "aria-label": "",
+                                    "type": "url",
+                                    "instructions": "",
+                                    "required": 1,
+                                    "conditional_logic": false,
+                                    "wrapper": {
+                                        "width": "30",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "default_value": "",
+                                    "placeholder": "https://...",
+                                    "parent_repeater": "field_lachuy_cf_social_links"
+                                }
+                            ]
+                        },
+                        {
                             "key": "field_lachuy_cf_hotline_title",
                             "label": "Tiêu đề hotline box",
                             "name": "hotline_title",

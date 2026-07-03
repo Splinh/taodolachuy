@@ -112,31 +112,90 @@ $zalo_url  = $social['zalo']['url'] ?? '';
 				<?php endif; ?>
 
 				<!-- Social -->
-				<?php if ( $fb_url || $yt_url || $zalo_url ) : ?>
+				<?php
+				$custom_socials = $data['social_links'] ?? [];
+				$contact_socials = [];
+
+				if ( ! empty( $custom_socials ) && is_array( $custom_socials ) ) {
+					foreach ( $custom_socials as $item ) {
+						$contact_socials[] = [
+							'icon'    => $item['icon_type'] ?? 'facebook',
+							'title'   => $item['title'] ?? '',
+							'subtext' => $item['subtext'] ?? '',
+							'url'     => $item['url'] ?? '',
+						];
+					}
+				} else {
+					// Fallback to global setting values
+					if ( $fb_url ) {
+						$contact_socials[] = [
+							'icon'    => 'facebook',
+							'title'   => 'Facebook',
+							'subtext' => __( 'Theo dõi trang', 'spl' ),
+							'url'     => $fb_url,
+						];
+					}
+					if ( $yt_url ) {
+						$contact_socials[] = [
+							'icon'    => 'youtube',
+							'title'   => 'Youtube',
+							'subtext' => __( 'Kênh sức khỏe', 'spl' ),
+							'url'     => $yt_url,
+						];
+					}
+					if ( $zalo_url ) {
+						$contact_socials[] = [
+							'icon'    => 'zalo',
+							'title'   => 'Zalo',
+							'subtext' => __( 'Chat trực tiếp', 'spl' ),
+							'url'     => $zalo_url,
+						];
+					}
+				}
+
+				if ( ! empty( $contact_socials ) ) :
+				?>
 					<div class="contact-social-box">
 						<h3><?php echo esc_html( $social_title ); ?></h3>
 						<?php if ( $social_desc ) : ?>
 							<p><?php echo esc_html( $social_desc ); ?></p>
 						<?php endif; ?>
 						<div class="contact-social-links">
-							<?php if ( $fb_url ) : ?>
-								<a href="<?php echo esc_url( $fb_url ); ?>" class="contact-social-link contact-social-link--fb" target="_blank" rel="noopener">
-									<svg class="icon" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-									<div><strong>Facebook</strong><span><?php esc_html_e( 'Theo dõi trang', 'spl' ); ?></span></div>
+							<?php
+							foreach ( $contact_socials as $social_item ) :
+								$icon_key = $social_item['icon'];
+								$class_map = [
+									'facebook'  => 'fb',
+									'youtube'   => 'yt',
+									'zalo'      => 'zalo',
+									'tiktok'    => 'tiktok',
+									'instagram' => 'instagram',
+									'messenger' => 'messenger',
+								];
+								$class_suffix = $class_map[ $icon_key ] ?? $icon_key;
+								$item_url     = $social_item['url'];
+								if ( empty( $item_url ) ) {
+									continue;
+								}
+								?>
+								<a href="<?php echo esc_url( $item_url ); ?>" class="contact-social-link contact-social-link--<?php echo esc_attr( $class_suffix ); ?>" target="_blank" rel="noopener">
+									<?php
+									if ( $icon_key === 'zalo' ) {
+										echo '<svg viewBox="0 0 48 48" width="24" height="24"><circle cx="24" cy="24" r="24" fill="#0068FF"/><text x="24" y="30" text-anchor="middle" fill="white" font-size="16" font-weight="bold">Z</text></svg>';
+									} elseif ( function_exists( 'hd_svg' ) ) {
+										echo hd_svg( $icon_key, 'icon' );
+									} else {
+										echo '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>';
+									}
+									?>
+									<div>
+										<strong><?php echo esc_html( $social_item['title'] ); ?></strong>
+										<?php if ( ! empty( $social_item['subtext'] ) ) : ?>
+											<span><?php echo esc_html( $social_item['subtext'] ); ?></span>
+										<?php endif; ?>
+									</div>
 								</a>
-							<?php endif; ?>
-							<?php if ( $yt_url ) : ?>
-								<a href="<?php echo esc_url( $yt_url ); ?>" class="contact-social-link contact-social-link--yt" target="_blank" rel="noopener">
-									<svg class="icon" viewBox="0 0 24 24"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/></svg>
-									<div><strong>Youtube</strong><span><?php esc_html_e( 'Kênh sức khỏe', 'spl' ); ?></span></div>
-								</a>
-							<?php endif; ?>
-							<?php if ( $zalo_url ) : ?>
-								<a href="<?php echo esc_url( $zalo_url ); ?>" class="contact-social-link contact-social-link--zalo" target="_blank" rel="noopener">
-									<svg viewBox="0 0 48 48" width="24" height="24"><circle cx="24" cy="24" r="24" fill="#0068FF"/><text x="24" y="30" text-anchor="middle" fill="white" font-size="16" font-weight="bold">Z</text></svg>
-									<div><strong>Zalo</strong><span><?php esc_html_e( 'Chat trực tiếp', 'spl' ); ?></span></div>
-								</a>
-							<?php endif; ?>
+							<?php endforeach; ?>
 						</div>
 					</div>
 				<?php endif; ?>
