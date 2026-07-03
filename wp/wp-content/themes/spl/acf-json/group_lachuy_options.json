@@ -472,6 +472,23 @@
             "placeholder": ""
         },
         {
+            "key": "field_lachuy_opt_tiktok_shop",
+            "label": "TikTok Shop URL",
+            "name": "tiktok_shop_url",
+            "aria-label": "",
+            "type": "url",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
             "key": "field_lachuy_opt_tab_product",
             "label": "Sản phẩm",
             "name": "",

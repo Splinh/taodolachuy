@@ -33,38 +33,72 @@ $gov_badge_url   = Helper::getField( 'gov_badge_url', 'option' );
 $hotline_display = is_array( $hotline ) ? ( $hotline['title'] ?? $hotline['url'] ?? '098 750 33 60' ) : $hotline;
 $hotline_url     = is_array( $hotline ) ? ( $hotline['url'] ?? 'tel:' . preg_replace( '/\s+/', '', $hotline_display ) ) : 'tel:' . preg_replace( '/\s+/', '', $hotline );
 
-// Social link options.
-$social_options = class_exists( '\Addons\Helper' )
-	? \Addons\Helper::getOption( 'social_link__options', [] )
-	: get_option( 'social_link__options', [] );
+$fb_url        = Helper::getField( 'facebook_url', 'option' );
+$tiktok_url    = Helper::getField( 'tiktok_url', 'option' );
+$tiktok_shop   = Helper::getField( 'tiktok_shop_url', 'option' );
+$zalo_url      = Helper::getField( 'zalo_url', 'option' ) ?: 'https://zalo.me/0987503360';
+$messenger_url = Helper::getField( 'messenger_url', 'option' ) ?: 'https://zalo.me/0987503360';
 
-$zalo_url      = $social_options['zalo']['url'] ?? 'https://zalo.me/0987503360';
-$messenger_url = $social_options['messenger']['url'] ?? 'https://zalo.me/0987503360';
-
-// Social icons for the footer brand block. Uses configured URLs when present,
-// otherwise renders the reference set so the block is never empty.
-$footer_socials = [
-	'facebook'  => [
-		'url'   => $social_options['facebook']['url'] ?? '#',
+$footer_socials = [];
+if ( $fb_url ) {
+	$footer_socials['facebook'] = [
+		'url'   => $fb_url,
 		'label' => 'Facebook',
 		'svg'   => '<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>',
-	],
-	'youtube'   => [
-		'url'   => $social_options['youtube']['url'] ?? '#',
-		'label' => 'Youtube',
-		'svg'   => '<path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/>',
-	],
-	'tiktok'    => [
-		'url'   => $social_options['tiktok']['url'] ?? '#',
+	];
+}
+if ( $tiktok_url ) {
+	$footer_socials['tiktok'] = [
+		'url'   => $tiktok_url,
 		'label' => 'TikTok',
 		'svg'   => '<path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>',
-	],
-	'zalo'      => [
+	];
+}
+if ( $tiktok_shop ) {
+	$footer_socials['tiktok_shop'] = [
+		'url'   => $tiktok_shop,
+		'label' => 'TikTok Shop',
+		'svg'   => '<path d="M6 8V6a6 6 0 1 1 12 0v2h3a1 1 0 0 1 1 1v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a1 1 0 0 1 1-1h3zm2 0h8V6a4 4 0 1 0-8 0v2z"/>',
+	];
+}
+if ( $zalo_url ) {
+	$footer_socials['zalo'] = [
 		'url'   => $zalo_url,
 		'label' => 'Zalo',
 		'svg'   => '<path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 17 3.5s1 2.5-1 6c-2 3.5-5 5.5-5 5.5"/><path d="M14 21c0-3.5-2-7-2-7"/>',
-	],
-];
+	];
+}
+
+if ( empty( $footer_socials ) ) {
+	// Fallback to old behavior if no ACF options configured
+	$social_options = class_exists( '\Addons\Helper' )
+		? \Addons\Helper::getOption( 'social_link__options', [] )
+		: get_option( 'social_link__options', [] );
+	$fallback_zalo  = $social_options['zalo']['url'] ?? 'https://zalo.me/0987503360';
+
+	$footer_socials = [
+		'facebook' => [
+			'url'   => $social_options['facebook']['url'] ?? '#',
+			'label' => 'Facebook',
+			'svg'   => '<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>',
+		],
+		'youtube'  => [
+			'url'   => $social_options['youtube']['url'] ?? '#',
+			'label' => 'Youtube',
+			'svg'   => '<path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/>',
+		],
+		'tiktok'   => [
+			'url'   => $social_options['tiktok']['url'] ?? '#',
+			'label' => 'TikTok',
+			'svg'   => '<path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>',
+		],
+		'zalo'     => [
+			'url'   => $fallback_zalo,
+			'label' => 'Zalo',
+			'svg'   => '<path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 17 3.5s1 2.5-1 6c-2 3.5-5 5.5-5 5.5"/><path d="M14 21c0-3.5-2-7-2-7"/>',
+		],
+	];
+}
 
 ?>
 </main>
@@ -123,18 +157,13 @@ get_template_part( 'parts/global/company-activity' );
 
 				<div class="footer__social">
 					<?php
-					$social_html = trim( Helper::doShortcode( 'social_menu', [ 'class' => 'footer__social-links' ] ) );
-					if ( $social_html ) {
-						echo $social_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shortcode output.
-					} else {
-						foreach ( $footer_socials as $social ) :
-							?>
-							<a href="<?php echo esc_url( $social['url'] ); ?>" aria-label="<?php echo esc_attr( $social['label'] ); ?>"<?php echo ( '#' !== $social['url'] ) ? ' target="_blank" rel="noopener"' : ''; ?>>
-								<svg class="icon" viewBox="0 0 24 24"><?php echo $social['svg']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></svg>
-							</a>
-							<?php
-						endforeach;
-					}
+					foreach ( $footer_socials as $social ) :
+						?>
+						<a href="<?php echo esc_url( $social['url'] ); ?>" aria-label="<?php echo esc_attr( $social['label'] ); ?>"<?php echo ( '#' !== $social['url'] ) ? ' target="_blank" rel="noopener"' : ''; ?>>
+							<svg class="icon" viewBox="0 0 24 24"><?php echo $social['svg']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></svg>
+						</a>
+						<?php
+					endforeach;
 					?>
 				</div>
 			</div>
