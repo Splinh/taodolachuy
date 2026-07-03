@@ -404,6 +404,40 @@
             "selected": 0
         },
         {
+            "key": "field_lachuy_opt_zalo",
+            "label": "Link Zalo Chat nổi",
+            "name": "zalo_url",
+            "aria-label": "",
+            "type": "url",
+            "instructions": "Đường dẫn Zalo cho nút bong bóng chat nổi ở góc phải màn hình.",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "https:\/\/zalo.me\/0987503360",
+            "placeholder": "https://zalo.me/..."
+        },
+        {
+            "key": "field_lachuy_opt_messenger",
+            "label": "Link Messenger Chat nổi",
+            "name": "messenger_url",
+            "aria-label": "",
+            "type": "url",
+            "instructions": "Đường dẫn Facebook Messenger cho nút bong bóng chat nổi ở góc phải màn hình.",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "https://m.me/..."
+        },
+        {
             "key": "field_lachuy_opt_footer_social_links",
             "label": "Mạng xã hội chân trang",
             "name": "footer_social_links",

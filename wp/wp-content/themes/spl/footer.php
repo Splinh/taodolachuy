@@ -35,17 +35,8 @@ $hotline_url     = is_array( $hotline ) ? ( $hotline['url'] ?? 'tel:' . preg_rep
 
 $footer_social_links = Helper::getField( 'footer_social_links', 'option' ) ?: [];
 
-$zalo_url      = 'https://zalo.me/0987503360';
-$messenger_url = 'https://zalo.me/0987503360';
-
-foreach ( $footer_social_links as $item ) {
-	if ( ( $item['icon_type'] ?? '' ) === 'zalo' && ! empty( $item['url'] ) ) {
-		$zalo_url = $item['url'];
-	}
-	if ( ( $item['icon_type'] ?? '' ) === 'messenger' && ! empty( $item['url'] ) ) {
-		$messenger_url = $item['url'];
-	}
-}
+$zalo_url      = Helper::getField( 'zalo_url', 'option' ) ?: 'https://zalo.me/0987503360';
+$messenger_url = Helper::getField( 'messenger_url', 'option' ) ?: 'https://zalo.me/0987503360';
 
 $footer_socials = [];
 if ( ! empty( $footer_social_links ) && is_array( $footer_social_links ) ) {
