@@ -165,12 +165,13 @@ $zalo_url  = $social['zalo']['url'] ?? '';
 							foreach ( $contact_socials as $social_item ) :
 								$icon_key = $social_item['icon'];
 								$class_map = [
-									'facebook'  => 'fb',
-									'youtube'   => 'yt',
-									'zalo'      => 'zalo',
-									'tiktok'    => 'tiktok',
-									'instagram' => 'instagram',
-									'messenger' => 'messenger',
+									'facebook'    => 'fb',
+									'youtube'     => 'yt',
+									'zalo'        => 'zalo',
+									'tiktok'      => 'tiktok',
+									'tiktok_shop' => 'tiktok',
+									'instagram'   => 'instagram',
+									'messenger'   => 'messenger',
 								];
 								$class_suffix = $class_map[ $icon_key ] ?? $icon_key;
 								$item_url     = $social_item['url'];
@@ -180,9 +181,7 @@ $zalo_url  = $social['zalo']['url'] ?? '';
 								?>
 								<a href="<?php echo esc_url( $item_url ); ?>" class="contact-social-link contact-social-link--<?php echo esc_attr( $class_suffix ); ?>" target="_blank" rel="noopener">
 									<?php
-									if ( $icon_key === 'zalo' ) {
-										echo '<svg viewBox="0 0 48 48" width="24" height="24"><circle cx="24" cy="24" r="24" fill="#0068FF"/><text x="24" y="30" text-anchor="middle" fill="white" font-size="16" font-weight="bold">Z</text></svg>';
-									} elseif ( function_exists( 'hd_svg' ) ) {
+									if ( function_exists( 'hd_svg' ) ) {
 										echo hd_svg( $icon_key, 'icon' );
 									} else {
 										echo '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>';

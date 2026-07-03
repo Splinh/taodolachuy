@@ -489,6 +489,96 @@
             "placeholder": ""
         },
         {
+            "key": "field_lachuy_opt_footer_social_links",
+            "label": "Mạng xã hội chân trang",
+            "name": "footer_social_links",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "Cấu hình danh sách mạng xã hội hiển thị dưới chân trang (Footer). Để trống để tự động hiển thị theo danh sách mặc định.",
+            "required": 0,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "table",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "button_label": "Thêm liên kết",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_lachuy_opt_footer_social_icon",
+                    "label": "Icon / Kênh",
+                    "name": "icon_type",
+                    "aria-label": "",
+                    "type": "select",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": false,
+                    "wrapper": {
+                        "width": "25",
+                        "class": "",
+                        "id": ""
+                    },
+                    "choices": {
+                        "facebook": "Facebook",
+                        "youtube": "Youtube",
+                        "zalo": "Zalo",
+                        "tiktok": "TikTok",
+                        "tiktok_shop": "TikTok Shop",
+                        "instagram": "Instagram",
+                        "messenger": "Messenger"
+                    },
+                    "default_value": "facebook",
+                    "return_format": "value",
+                    "multiple": 0,
+                    "allow_null": 0,
+                    "ui": 0,
+                    "ajax": 0,
+                    "placeholder": ""
+                },
+                {
+                    "key": "field_lachuy_opt_footer_social_label",
+                    "label": "Tiêu đề hiển thị (khi hover)",
+                    "name": "label",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": false,
+                    "wrapper": {
+                        "width": "35",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "Ví dụ: Theo dõi chúng tôi trên Facebook"
+                },
+                {
+                    "key": "field_lachuy_opt_footer_social_url",
+                    "label": "Liên kết (URL)",
+                    "name": "url",
+                    "aria-label": "",
+                    "type": "url",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": false,
+                    "wrapper": {
+                        "width": "40",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "https://"
+                }
+            ]
+        },
+        {
             "key": "field_lachuy_opt_tab_product",
             "label": "Sản phẩm",
             "name": "",

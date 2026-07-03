@@ -39,34 +39,37 @@ $tiktok_shop   = Helper::getField( 'tiktok_shop_url', 'option' );
 $zalo_url      = Helper::getField( 'zalo_url', 'option' ) ?: 'https://zalo.me/0987503360';
 $messenger_url = Helper::getField( 'messenger_url', 'option' ) ?: 'https://zalo.me/0987503360';
 
+$footer_social_links = Helper::getField( 'footer_social_links', 'option' ) ?: [];
+
 $footer_socials = [];
-if ( $fb_url ) {
-	$footer_socials['facebook'] = [
-		'url'   => $fb_url,
-		'label' => 'Facebook',
-		'svg'   => '<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>',
-	];
-}
-if ( $tiktok_url ) {
-	$footer_socials['tiktok'] = [
-		'url'   => $tiktok_url,
-		'label' => 'TikTok',
-		'svg'   => '<path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>',
-	];
-}
-if ( $tiktok_shop ) {
-	$footer_socials['tiktok_shop'] = [
-		'url'   => $tiktok_shop,
-		'label' => 'TikTok Shop',
-		'svg'   => '<path d="M6 8V6a6 6 0 1 1 12 0v2h3a1 1 0 0 1 1 1v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a1 1 0 0 1 1-1h3zm2 0h8V6a4 4 0 1 0-8 0v2z"/>',
-	];
-}
-if ( $zalo_url ) {
-	$footer_socials['zalo'] = [
-		'url'   => $zalo_url,
-		'label' => 'Zalo',
-		'svg'   => '<path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 17 3.5s1 2.5-1 6c-2 3.5-5 5.5-5 5.5"/><path d="M14 21c0-3.5-2-7-2-7"/>',
-	];
+if ( ! empty( $footer_social_links ) && is_array( $footer_social_links ) ) {
+	foreach ( $footer_social_links as $item ) {
+		$icon_key = $item['icon_type'] ?? 'facebook';
+		$url      = $item['url'] ?? '';
+		$label    = $item['label'] ?? '';
+		if ( empty( $url ) ) {
+			continue;
+		}
+
+		$svg = '';
+		$viewBox = '0 0 24 24';
+
+		if ( function_exists( 'hd_svg' ) ) {
+			$svg = hd_svg( $icon_key, 'icon' );
+			if ( preg_match( '/viewBox="([^"]+)"/', $svg, $matches ) ) {
+				$viewBox = $matches[1];
+			}
+			$svg = preg_replace( '/^<svg[^>]*>/i', '', $svg );
+			$svg = preg_replace( '/<\/svg>$/i', '', $svg );
+		}
+
+		$footer_socials[] = [
+			'url'     => $url,
+			'label'   => $label ?: ucfirst( $icon_key ),
+			'viewBox' => $viewBox,
+			'svg'     => $svg,
+		];
+	}
 }
 
 if ( empty( $footer_socials ) ) {
@@ -76,26 +79,39 @@ if ( empty( $footer_socials ) ) {
 		: get_option( 'social_link__options', [] );
 	$fallback_zalo  = $social_options['zalo']['url'] ?? 'https://zalo.me/0987503360';
 
+	// For the Zalo SVG fallback, we still use the wide Zalo word logo to match the user's preference!
+	$zalo_svg_raw = function_exists( 'hd_svg' ) ? hd_svg( 'zalo', 'icon' ) : '';
+	$zalo_viewbox = '0 0 77 28';
+	if ( preg_match( '/viewBox="([^"]+)"/', $zalo_svg_raw, $matches ) ) {
+		$zalo_viewbox = $matches[1];
+	}
+	$zalo_svg = preg_replace( '/^<svg[^>]*>/i', '', $zalo_svg_raw );
+	$zalo_svg = preg_replace( '/<\/svg>$/i', '', $zalo_svg );
+
 	$footer_socials = [
-		'facebook' => [
-			'url'   => $social_options['facebook']['url'] ?? '#',
-			'label' => 'Facebook',
-			'svg'   => '<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>',
+		[
+			'url'     => $social_options['facebook']['url'] ?? '#',
+			'label'   => 'Facebook',
+			'viewBox' => '0 0 24 24',
+			'svg'     => '<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>',
 		],
-		'youtube'  => [
-			'url'   => $social_options['youtube']['url'] ?? '#',
-			'label' => 'Youtube',
-			'svg'   => '<path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/>',
+		[
+			'url'     => $social_options['tiktok']['url'] ?? '#',
+			'label'   => 'TikTok',
+			'viewBox' => '0 0 24 24',
+			'svg'     => '<path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>',
 		],
-		'tiktok'   => [
-			'url'   => $social_options['tiktok']['url'] ?? '#',
-			'label' => 'TikTok',
-			'svg'   => '<path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>',
+		[
+			'url'     => $social_options['youtube']['url'] ?? '#',
+			'label'   => 'Youtube',
+			'viewBox' => '0 0 24 24',
+			'svg'     => '<path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/>',
 		],
-		'zalo'     => [
-			'url'   => $fallback_zalo,
-			'label' => 'Zalo',
-			'svg'   => '<path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 17 3.5s1 2.5-1 6c-2 3.5-5 5.5-5 5.5"/><path d="M14 21c0-3.5-2-7-2-7"/>',
+		[
+			'url'     => $fallback_zalo,
+			'label'   => 'Zalo',
+			'viewBox' => $zalo_viewbox,
+			'svg'     => $zalo_svg,
 		],
 	];
 }
@@ -121,10 +137,11 @@ get_template_part( 'parts/global/company-activity' );
 					<?php
 					$footer_logo_id = get_theme_mod( 'custom_logo' );
 					if ( $footer_logo_id ) :
-						echo wp_get_attachment_image( $footer_logo_id, 'medium', false, [
+						echo wp_get_attachment_image( $footer_logo_id, 'full', false, [
 							'class'   => 'footer__brand-img',
 							'loading' => 'lazy',
 							'alt'     => esc_attr( get_bloginfo( 'name' ) ),
+							'style'   => 'max-height: 75px; width: auto; display: block; opacity: 1; filter: none;',
 						] );
 					else :
 					?>
@@ -158,9 +175,10 @@ get_template_part( 'parts/global/company-activity' );
 				<div class="footer__social">
 					<?php
 					foreach ( $footer_socials as $social ) :
+						$viewBox = $social['viewBox'] ?? '0 0 24 24';
 						?>
-						<a href="<?php echo esc_url( $social['url'] ); ?>" aria-label="<?php echo esc_attr( $social['label'] ); ?>"<?php echo ( '#' !== $social['url'] ) ? ' target="_blank" rel="noopener"' : ''; ?>>
-							<svg class="icon" viewBox="0 0 24 24"><?php echo $social['svg']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></svg>
+						<a href="<?php echo esc_url( $social['url'] ); ?>" aria-label="<?php echo esc_attr( $social['label'] ); ?>" title="<?php echo esc_attr( $social['label'] ); ?>"<?php echo ( '#' !== $social['url'] ) ? ' target="_blank" rel="noopener"' : ''; ?>>
+							<svg class="icon" viewBox="<?php echo esc_attr( $viewBox ); ?>"><?php echo $social['svg']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></svg>
 						</a>
 						<?php
 					endforeach;
