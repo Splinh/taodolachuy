@@ -41,8 +41,17 @@ while ( have_posts() ) :
 	// Options for social/hotline.
 	$hotline     = Helper::getField( 'hotline', 'option' ) ?: '098 750 33 60';
 	$hotline_url = 'tel:' . preg_replace( '/\s+/', '', $hotline );
-	$fb_url      = Helper::getField( 'facebook_url', 'option' );
-	$yt_url      = Helper::getField( 'youtube_url', 'option' );
+	$footer_social_links = Helper::getField( 'footer_social_links', 'option' ) ?: [];
+	$fb_url              = '';
+	$yt_url              = '';
+	foreach ( $footer_social_links as $item ) {
+		if ( ( $item['icon_type'] ?? '' ) === 'facebook' ) {
+			$fb_url = $item['url'] ?? '';
+		}
+		if ( ( $item['icon_type'] ?? '' ) === 'youtube' ) {
+			$yt_url = $item['url'] ?? '';
+		}
+	}
 	?>
 
 	<!-- ===== BREADCRUMB ===== -->

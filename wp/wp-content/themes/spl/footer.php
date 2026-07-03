@@ -33,13 +33,19 @@ $gov_badge_url   = Helper::getField( 'gov_badge_url', 'option' );
 $hotline_display = is_array( $hotline ) ? ( $hotline['title'] ?? $hotline['url'] ?? '098 750 33 60' ) : $hotline;
 $hotline_url     = is_array( $hotline ) ? ( $hotline['url'] ?? 'tel:' . preg_replace( '/\s+/', '', $hotline_display ) ) : 'tel:' . preg_replace( '/\s+/', '', $hotline );
 
-$fb_url        = Helper::getField( 'facebook_url', 'option' );
-$tiktok_url    = Helper::getField( 'tiktok_url', 'option' );
-$tiktok_shop   = Helper::getField( 'tiktok_shop_url', 'option' );
-$zalo_url      = Helper::getField( 'zalo_url', 'option' ) ?: 'https://zalo.me/0987503360';
-$messenger_url = Helper::getField( 'messenger_url', 'option' ) ?: 'https://zalo.me/0987503360';
-
 $footer_social_links = Helper::getField( 'footer_social_links', 'option' ) ?: [];
+
+$zalo_url      = 'https://zalo.me/0987503360';
+$messenger_url = 'https://zalo.me/0987503360';
+
+foreach ( $footer_social_links as $item ) {
+	if ( ( $item['icon_type'] ?? '' ) === 'zalo' && ! empty( $item['url'] ) ) {
+		$zalo_url = $item['url'];
+	}
+	if ( ( $item['icon_type'] ?? '' ) === 'messenger' && ! empty( $item['url'] ) ) {
+		$messenger_url = $item['url'];
+	}
+}
 
 $footer_socials = [];
 if ( ! empty( $footer_social_links ) && is_array( $footer_social_links ) ) {
@@ -133,7 +139,7 @@ get_template_part( 'parts/global/company-activity' );
 		<div class="footer-grid">
 			<!-- Company / Brand -->
 			<div class="footer__brand">
-				<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="footer__brand-logo">
+				<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="footer__brand-logo" style="display: block; max-height: none; height: auto; width: auto; max-width: none;">
 					<?php
 					$footer_logo_id = get_theme_mod( 'custom_logo' );
 					if ( $footer_logo_id ) :
@@ -141,7 +147,7 @@ get_template_part( 'parts/global/company-activity' );
 							'class'   => 'footer__brand-img',
 							'loading' => 'lazy',
 							'alt'     => esc_attr( get_bloginfo( 'name' ) ),
-							'style'   => 'max-height: 90px; width: auto; display: block; opacity: 1; filter: brightness(1.8) contrast(1.1);',
+							'style'   => 'max-height: 110px; width: auto; display: block; opacity: 1; filter: brightness(1.8) contrast(1.1);',
 						] );
 					else :
 					?>
@@ -150,7 +156,7 @@ get_template_part( 'parts/global/company-activity' );
 					<?php endif; ?>
 				</a>
 				<p class="footer__brand-desc"><?php echo esc_html( Helper::getField( 'footer_desc', 'option' ) ?: __( 'Chuyên cung cấp thảo dược thiên nhiên, trà túi lọc, bột nguyên chất, tinh dầu thiên nhiên. Tất cả vì sức khỏe cộng đồng.', 'spl' ) ); ?></p>
-
+ 
 				<ul class="footer__company">
 					<?php if ( $company_intl ) : ?>
 						<li><span class="footer__company-label"><?php esc_html_e( 'Tên quốc tế:', 'spl' ); ?></span> <?php echo esc_html( $company_intl ); ?></li>
@@ -171,14 +177,14 @@ get_template_part( 'parts/global/company-activity' );
 						<li><span class="footer__company-label"><?php esc_html_e( 'STK:', 'spl' ); ?></span> <?php echo esc_html( $bank_account ); ?></li>
 					<?php endif; ?>
 				</ul>
-
+ 
 				<div class="footer__social">
 					<?php
 					foreach ( $footer_socials as $social ) :
 						$viewBox = $social['viewBox'] ?? '0 0 24 24';
 						?>
-						<a href="<?php echo esc_url( $social['url'] ); ?>" aria-label="<?php echo esc_attr( $social['label'] ); ?>" title="<?php echo esc_attr( $social['label'] ); ?>"<?php echo ( '#' !== $social['url'] ) ? ' target="_blank" rel="noopener"' : ''; ?>>
-							<svg class="icon" viewBox="<?php echo esc_attr( $viewBox ); ?>"><?php echo $social['svg']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></svg>
+						<a href="<?php echo esc_url( $social['url'] ); ?>" aria-label="<?php echo esc_attr( $social['label'] ); ?>" title="<?php echo esc_attr( $social['label'] ); ?>"<?php echo ( '#' !== $social['url'] ) ? ' target="_blank" rel="noopener"' : ''; ?> style="opacity: 1; color: #fff; display: flex; align-items: center; justify-content: center;">
+							<svg class="icon" viewBox="<?php echo esc_attr( $viewBox ); ?>" style="width: 20px; height: 20px; fill: currentColor; stroke: none;"><?php echo $social['svg']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></svg>
 						</a>
 						<?php
 					endforeach;
